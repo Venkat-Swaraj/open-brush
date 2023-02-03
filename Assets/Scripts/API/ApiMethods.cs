@@ -201,6 +201,13 @@ namespace TiltBrush
             _SpectatorShowHide(thing, false);
         }
 
+        [ApiEndpoint("resetapp", "Reset all settings and begin again.")]
+        public static void ResetApp()
+        {
+            PlayerPrefs.DeleteAll();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        }
+
         [ApiEndpoint("brush.move.to", "Moves the brush to the given coordinates")]
         public static void BrushMoveTo(Vector3 position)
         {
