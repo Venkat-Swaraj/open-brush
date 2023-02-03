@@ -699,17 +699,27 @@ namespace TiltBrush
         IEnumerator ScreenCap()
         {
             yield return new WaitForEndOfFrame();
-            var rt = new RenderTexture(Screen.width, Screen.height, 0);
-            ScreenCapture.CaptureScreenshotIntoRenderTexture(rt);
+
+
+            Rect rect = new Rect(0, 0, Screen.width, Screen.height);
+            var renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+            var screenShot = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
+            var cam = App.VrSdk.GetVrCamera();
+
+            var oldTargetTex = cam.targetTexture;
+            cam.targetTexture = renderTexture;
+            cam.Render();
             var oldTex = RenderTexture.active;
-            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
-            RenderTexture.active = rt;
-            tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-            FlipTextureVertically(tex);
-            tex.Apply();
+
+            RenderTexture.active = renderTexture;
+            screenShot.ReadPixels(rect, 0, 0);
+            cam.targetTexture = oldTargetTex;
             RenderTexture.active = oldTex;
-            CameraViewPng = tex.EncodeToPNG();
-            Destroy(tex);
+
+
+            screenShot.Apply();
+            CameraViewPng = screenShot.EncodeToPNG();
+            Destroy(screenShot);
 
             cameraViewRequested = false;
             cameraViewGenerated = true;
